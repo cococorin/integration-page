@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>cococorin 受付 | サービス選択</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  /* =========================================================
+     Theme tokens — based on the actual theme colors of each app:
+     - Coworking : background #f0f0f0, accent #00a0b0 (teal)
+     - Looper    : background #b02820 (deep red)
+     ========================================================= */
+  :root {
+    /* Page */
+    --bg-page: #f5efe6;
+    --bg-page-2: #faf6ef;
+    --ink-dark: #2e2826;     /* matches cococorin logo color */
+    --ink-mid: #5a4f48;
+    --ink-soft: #8a7d72;
+    --border-soft: rgba(46, 40, 38, 0.10);
+    --shadow-soft: 0 8px 32px rgba(46, 40, 38, 0.08);
+    --shadow-hover: 0 18px 48px rgba(46, 40, 38, 0.20);
+
+    /* Coworking card — cococorin teal */
+    --cw-bg: #f0f0f0;
+    --cw-accent: #00a0b0;
+    --cw-accent-deep: #008794;
+    --cw-ink: #2e2826;
+
+    /* Looper card — deep red */
+    --lp-bg: #b02820;
+    --lp-bg-deep: #8c1e18;
+    --lp-accent: #ffffff;
+    --lp-ink: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    /* All Japanese gothic, no serif anywhere */
+    font-family: 'Noto Sans JP', "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+    background: var(--bg-page);
+    color: var(--ink-dark);
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+  }
+
+  /* Soft atmospheric background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 8%,  rgba(0, 160, 176, 0.06) 0%, transparent 38%),
+      radial-gradient(circle at 85% 92%, rgba(176, 40, 32, 0.05) 0%, transparent 38%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 36px 44px 28px;
+  }
+
+  /* ===== Header ===== */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .logo-img {
+    height: 44px;
+    width: auto;
+    display: block;
+  }
+
+  .logo-tag {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    padding-left: 18px;
+    border-left: 1px solid var(--border-soft);
+  }
+
+  .clock {
+    text-align: right;
+    font-feature-settings: "tnum" 1; /* tabular numbers so digits don't jiggle */
+  }
+
+  .clock .date {
+    font-size: 13px;
+    color: var(--ink-soft);
+    letter-spacing: 0.18em;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  .clock .time {
+    font-size: 26px;
+    color: var(--ink-mid);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    line-height: 1;
+  }
+
+  .clock .time .sec {
+    font-size: 20px;
+    color: var(--ink-soft);
+    font-weight: 400;
+    margin-left: 2px;
+  }
+
+  /* ===== Hero ===== */
+  .hero {
+    text-align: center;
+    padding: 48px 0 36px;
+  }
+
+  .hero-eyebrow {
+    font-size: 12px;
+    color: var(--ink-soft);
+    letter-spacing: 0.32em;
+    margin-bottom: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  .hero-title {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--ink-dark);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+
+  .hero-sub {
+    font-size: 14px;
+    color: var(--ink-mid);
+    letter-spacing: 0.08em;
+  }
+
+  /* ===== Choice cards ===== */
+  .choices {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    align-content: center;
+    padding: 8px 0 28px;
+  }
+
+  .card {
+    position: relative;
+    border-radius: 28px;
+    padding: 36px 36px;
+    box-shadow: var(--shadow-soft);
+    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 240px;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid transparent;
+  }
+
+  .card:active { transform: scale(0.985); }
+
+  @media (hover: hover) {
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+    }
+  }
+
+  /* ===== Coworking card ===== */
+  .card-coworking {
+    background: linear-gradient(160deg, #ffffff 0%, var(--cw-bg) 100%);
+    color: var(--cw-ink);
+    border-color: var(--border-soft);
+  }
+
+  .card-coworking .card-num,
+  .card-coworking .card-cta-text { color: var(--cw-ink); }
+
+  .card-coworking .card-icon-bg { background: rgba(0, 160, 176, 0.12); }
+  .card-coworking .card-arrow { background: var(--cw-accent); }
+  .card-coworking .card-accent { background: var(--cw-accent); }
+
+  /* ===== Looper card ===== */
+  .card-looper {
+    background: linear-gradient(160deg, var(--lp-bg) 0%, var(--lp-bg-deep) 100%);
+    color: var(--lp-ink);
+  }
+
+  .card-looper .card-num { color: rgba(255, 255, 255, 0.65); }
+  .card-looper .card-title-ja { color: #ffffff; }
+  .card-looper .card-desc { color: rgba(255, 255, 255, 0.85); }
+  .card-looper .card-cta { border-top-color: rgba(255, 255, 255, 0.18); }
+  .card-looper .card-cta-text { color: #ffffff; }
+  .card-looper .card-arrow { background: rgba(255, 255, 255, 0.95); color: var(--lp-bg); }
+  .card-looper .card-icon-bg { background: rgba(255, 255, 255, 0.10); }
+  .card-looper .card-accent { background: rgba(255, 255, 255, 0.85); }
+
+  /* ===== Card internals ===== */
+  .card-accent {
+    position: absolute;
+    top: 0;
+    left: 36px;
+    width: 56px;
+    height: 4px;
+    border-radius: 0 0 4px 4px;
+  }
+
+  .card-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .card-icon {
+    flex: 0 0 auto;
+    width: 88px;
+    height: 88px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-icon-bg {
+    position: absolute;
+    inset: 0;
+    border-radius: 22px;
+  }
+
+  .card-icon svg,
+  .card-icon img {
+    position: relative;
+    z-index: 1;
+  }
+
+  .card-icon svg {
+    width: 52px;
+    height: 52px;
+  }
+
+  .card-icon .looper-mark {
+    width: 78%;
+    height: auto;
+  }
+
+  .card-body { flex: 1; min-width: 0; }
+
+  .card-num {
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .card-title-ja {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--ink-dark);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .card-desc {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ink-mid);
+  }
+
+  .card-cta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    margin-top: 22px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .card-cta-text {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+  }
+
+  .card-arrow {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: transform 0.3s ease;
+  }
+
+  @media (hover: hover) {
+    .card:hover .card-arrow { transform: translateX(4px); }
+  }
+
+  /* ===== Footer ===== */
+  footer {
+    text-align: center;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .footer-text {
+    font-size: 11px;
+    color: var(--ink-soft);
+    letter-spacing: 0.18em;
+  }
+
+  .footer-text .divider {
+    margin: 0 12px;
+    opacity: 0.45;
+  }
+
+  /* ===== Entry animation ===== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero, .card, footer { animation: fadeUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+  .hero { animation-delay: 0.1s; }
+  .card-coworking { animation-delay: 0.25s; }
+  .card-looper { animation-delay: 0.4s; }
+  footer { animation-delay: 0.55s; }
+
+  /* ===== Landscape / desktop fallback (just in case) ===== */
+  @media (orientation: landscape) and (min-width: 900px) {
+    .choices {
+      grid-template-columns: 1fr 1fr;
+    }
+    .card { min-height: 320px; }
+  }
+
+  /* ===== Compact iPad portrait (e.g. iPad mini) ===== */
+  @media (orientation: portrait) and (max-height: 1100px) {
+    .page { padding: 28px 32px 22px; }
+    .hero { padding: 32px 0 24px; }
+    .hero-title { font-size: 28px; }
+    .card { min-height: 210px; padding: 28px 28px; }
+    .card-icon { width: 76px; height: 76px; }
+    .card-title-ja { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="logo-wrap">
+        <img src="cococorin_logo.svg" alt="cococorin" class="logo-img" />
+        <span class="logo-tag">Reception</span>
+      </div>
+      <div class="clock">
+        <div class="date" id="dateDisplay">—</div>
+        <div class="time"><span id="timeMain">—</span><span class="sec" id="timeSec"></span></div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-eyebrow">Welcome to cococorin</div>
+      <h1 class="hero-title">ご利用のサービスをお選びください</h1>
+      <p class="hero-sub">Please select the service you'd like to use.</p>
+    </section>
+
+    <main class="choices">
+      <!-- ===== Coworking ===== -->
+      <a class="card card-coworking" href="https://cococorin.github.io/coworking-system/tablet.html">
+        <span class="card-accent"></span>
+        <div class="card-row">
+          <div class="card-icon">
+            <span class="card-icon-bg"></span>
+            <!-- Coworking icon: laptop + coffee -->
+            <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#00a0b0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="10" y="16" width="36" height="22" rx="2" />
+              <line x1="6" y1="42" x2="50" y2="42"/>
+              <path d="M14 38 L42 38" stroke-width="1.5"/>
+              <circle cx="28" cy="27" r="3" fill="#00a0b0" stroke="none"/>
+              <path d="M22 12 Q23 8 25 8" stroke-width="1.5"/>
+              <path d="M30 12 Q31 8 33 8" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="card-num">01 — COWORKING SPACE</div>
+            <h2 class="card-title-ja">コワーキングスペース</h2>
+            <p class="card-desc">お仕事や作業、お打ち合わせなどに。<br>入退館の受付はこちらからどうぞ。</p>
+          </div>
+        </div>
+        <div class="card-cta">
+          <span class="card-cta-text">受付へ進む</span>
+          <span class="card-arrow">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M3 9 H14 M9 4 L14 9 L9 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- ===== Looper ===== -->
+      <a class="card card-looper" href="https://cococorin.github.io/rental-bicycle/looper_reception">
+        <span class="card-accent"></span>
+        <div class="card-row">
+          <div class="card-icon">
+            <span class="card-icon-bg"></span>
+            <!-- Use the Looper white logo as the icon -->
+            <img src="LOOPER_logo_white.png" alt="Looper" class="looper-mark" />
+          </div>
+          <div class="card-body">
+            <div class="card-num">02 — BICYCLE RENTAL</div>
+            <h2 class="card-title-ja">レンタサイクル Looper</h2>
+            <p class="card-desc">半田のまちを自転車で。<br>ご利用受付・お会計はこちらから。</p>
+          </div>
+        </div>
+        <div class="card-cta">
+          <span class="card-cta-text">受付へ進む</span>
+          <span class="card-arrow">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M3 9 H14 M9 4 L14 9 L9 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </div>
+      </a>
+    </main>
+
+    <footer>
+      <p class="footer-text">
+        <span>cococorin</span>
+        <span class="divider">·</span>
+        <span>愛知県半田市</span>
+        <span class="divider">·</span>
+        <span>お困りの際はスタッフへお声がけください</span>
+      </p>
+    </footer>
+  </div>
+
+<script>
+  // Live clock with second-by-second updates, synced to wall-clock seconds
+  (function () {
+    const days = ['日', '月', '火', '水', '木', '金', '土'];
+    const dateEl = document.getElementById('dateDisplay');
+    const timeMainEl = document.getElementById('timeMain');
+    const timeSecEl  = document.getElementById('timeSec');
+
+    function pad2(n) { return String(n).padStart(2, '0'); }
+
+    function tick() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = pad2(now.getMonth() + 1);
+      const d = pad2(now.getDate());
+      const w = days[now.getDay()];
+      const hh = pad2(now.getHours());
+      const mm = pad2(now.getMinutes());
+      const ss = pad2(now.getSeconds());
+      dateEl.textContent = `${y}.${m}.${d} (${w})`;
+      timeMainEl.textContent = `${hh}:${mm}`;
+      timeSecEl.textContent = `:${ss}`;
+    }
+
+    tick(); // first render
+    // Sync to the next wall-clock second so the change happens exactly on each :00ms
+    const msUntilNextSec = 1000 - (Date.now() % 1000);
+    setTimeout(function () {
+      tick();
+      setInterval(tick, 1000);
+    }, msUntilNextSec);
+  })();
+</script>
+</body>
+</html>
