@@ -48,6 +48,8 @@
     color: var(--ink-dark);
     -webkit-font-smoothing: antialiased;
     user-select: none;
+    /* Kill the double-tap-zoom wait so taps register immediately */
+    touch-action: manipulation;
   }
 
   /* Soft atmospheric background */
@@ -184,9 +186,23 @@
     text-decoration: none;
     color: inherit;
     border: 1px solid transparent;
+    touch-action: manipulation;
   }
 
-  .card:active { transform: scale(0.985); }
+  /* Instant press feedback: quick shrink + accent ring.
+     A fast transition (0.07s) overrides the slow 0.4s hover transition so the
+     press reads immediately instead of easing in over the hover timing. */
+  .card.pressed,
+  .card:active {
+    transform: scale(0.97);
+    transition: transform 0.07s ease, box-shadow 0.07s ease;
+    box-shadow: 0 4px 16px rgba(46, 40, 38, 0.16), 0 0 0 3px rgba(0, 160, 176, 0.38);
+  }
+
+  .card-looper.pressed,
+  .card-looper:active {
+    box-shadow: 0 4px 16px rgba(46, 40, 38, 0.16), 0 0 0 3px rgba(255, 255, 255, 0.55);
+  }
 
   @media (hover: hover) {
     .card:hover {
@@ -497,6 +513,25 @@
       tick();
       setInterval(tick, 1000);
     }, msUntilNextSec);
+  })();
+
+  // Instant tap response for the choice cards (kiosk use).
+  // Paint the press highlight immediately on pointerdown, then navigate on the
+  // next frame so the feedback is visible before the page unloads.
+  // preventDefault() suppresses the delayed ghost click so we never navigate
+  // twice. Browsers without PointerEvent fall back to the native <a> click.
+  (function () {
+    if (!window.PointerEvent) return; // fallback: native <a> click handles it
+    document.querySelectorAll('.card').forEach(function (card) {
+      const url = card.getAttribute('href');
+      if (!url) return;
+      card.addEventListener('pointerdown', function (e) {
+        if (!e.isPrimary || (e.button && e.button !== 0)) return;
+        card.classList.add('pressed');
+        e.preventDefault();
+        requestAnimationFrame(function () { window.location.href = url; });
+      });
+    });
   })();
 </script>
 </body>
